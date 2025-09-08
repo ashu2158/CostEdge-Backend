@@ -1,0 +1,40 @@
+package com.CostEdge.Controls;
+
+import com.CostEdge.Model.DTO.AuthResponse;
+import com.CostEdge.Model.User;
+import com.CostEdge.Services.AuthService;
+import lombok.Data;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthService auth;
+
+    public AuthController(AuthService auth) {
+        this.auth = auth;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody RegisterRequest req) {
+        return ResponseEntity.ok(auth.register(req.getUsername(), req.getPassword(), req.getRole()));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        try {
+            AuthResponse response = auth.login(req.getUsername(), req.getPassword());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+    }
+
+    @Data
+    static class LoginRequest { private String username; private String password; }
+
+    @Data
+    static class RegisterRequest { private String username; private String password; private String role; }
+}

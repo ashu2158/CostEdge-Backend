@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: costedge
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: costedge
+    ports:
+      - "5432:5432"
+    networks:
+      - costedge-net
+
+  backend:
+    build: .
+    container_name: costedge-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/costedge
+      SPRING_DATASOURCE_USERNAME: costedge
+      SPRING_DATASOURCE_PASSWORD: secret
+    networks:
+      - costedge-net
+
+networks:
+  costedge-net:
